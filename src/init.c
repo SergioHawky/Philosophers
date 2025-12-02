@@ -10,102 +10,79 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philo.h"
 
-void	error_and_exit(char *message)
+/// @brief main function to data initialization
+/// @param argv 
+/// @param argc 
+/// @return array of philosophers
+t_philo	*init_data(char **argv, int argc)
 {
-	printf("%s\n", message);
-	exit(1);
+	t_philo	*philos;
+
+	prog_data()->num_philos = ft_atol(argv[1]);
+	prog_data()->time_to_die = ft_atol(argv[2]);
+	prog_data()->time_to_eat = ft_atol(argv[3]);
+	prog_data()->time_to_sleep = ft_atol(argv[4]);
+	prog_data()->start_time = get_current_time_in_ms();
+	prog_data()->simulation_stop = 0;
+	if (argc == 6)
+		prog_data()->meals = ft_atol(argv[5]);
+	else
+		prog_data()->meals = -1;
+	prog_data()->forks = malloc(sizeof(pthread_mutex_t)
+		* prog_data()->num_philos);
+	if (!prog_data()->forks)
+		return (NULL);
+	philos = philo_storage();
+	return (philos);
 }
 
-t_philos	**init_philos(t_vars *vars)
+/// @brief function to get the time precisely 
+/// @return
+long	get_current_time_in_ms(void)
 {
-	t_philos	**philos_array;
-	int			i;
-	t_philos	*curr_philosopher;
+	struct timeval	tv;
 
-	i = 0;
-	philos_array = malloc(sizeof(t_philos **) * vars->number_of_philosophers);
-	if (philos_array == NULL)
-		error_and_exit("Malloc error in init_philos");
-	while (i < vars->number_of_philosophers)
-	{
-		curr_philosopher = malloc(sizeof(t_philos));
-		if (curr_philosopher == NULL)
-		{
-			free_philosophers(vars, philos_array);
-			error_and_exit("Malloc error in init_philos");
-		}
-		curr_philosopher->id = i + 1;
-		curr_philosopher->time_last_eaten = 0;
-		curr_philosopher->times_eaten = 0;
-		curr_philosopher->death_flag = 0;
-		curr_philosopher->vars = vars;
-		philos_array[i] = curr_philosopher;
-		i++;
-	}
-	return (philos_array);
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-void	create_forks(t_philos **philos_array, t_vars *vars)
+/// @brief function to store all the data inside the philosophers
+t_philo	*philo_storage(void)
 {
-	int	i;
+	t_philo	*philos;
+	int		i;
 
-	vars->mutexes = malloc(sizeof(pthread_mutex_t)
-			* vars->number_of_philosophers);
-	if (!vars->mutexes)
-	{
-		free_philosophers(vars, philos_array);
-		error_and_exit("Malloc error in create_forks");
-	}
 	i = 0;
-	while (i < vars->number_of_philosophers)
+	philos = malloc(sizeof(t_philo) * prog_data()->num_philos);
+	if (!philos)
 	{
-		pthread_mutex_init(&vars->mutexes[i], NULL);
-		philos_array[i]->left_fork = i;
-		philos_array[i]->right_fork = (i + 1) % vars->number_of_philosophers;
+		free(prog_data()->forks);
+		return (NULL);
+	}
+	while (i < prog_data()->num_philos)
+	{
+		pthread_mutex_init(&prog_data()->forks[i], NULL);
+		philos[i].id = i + 1;
+		philos[i].data = prog_data();
+		philos[i].last_meal_time = prog_data()->start_time;
+		philos[i].eaten = 0;
+		philos[i].thread = 0;
 		i++;
 	}
+	return (philos);
 }
 
-void	init_mutexes(t_philos **philos_array, t_vars *vars)
+/* void	print_data(void)
 {
-	int	i;
-
-	create_forks(philos_array, vars);
-	pthread_mutex_init(&vars->print_mutex, NULL);
-	pthread_mutex_init(&vars->shutdown_mutex, NULL);
-	i = 0;
-	while (i < vars->number_of_philosophers)
-	{
-		pthread_mutex_init(&philos_array[i]->time_last_eaten_mutex, NULL);
-		pthread_mutex_init(&philos_array[i]->times_eaten_mutex, NULL);
-		i++;
-	}
-}
-
-void	init_threads(t_vars *vars, t_philos **philos_array, t_master *master)
-{
-	int	i;
-
-	i = 0;
-	init_mutexes(philos_array, vars);
-	master->philosophers = philos_array;
-	master->vars = vars;
-	vars->start_time = get_time() + 100;
-	vars->start_flag = 1;
-	while (i < vars->number_of_philosophers)
-	{
-		pthread_create(&philos_array[i]->thread, NULL, routine,
-			philos_array[i]);
-		i++;
-	}
-	pthread_create(&master->master_thread, NULL, monitor, master);
-	pthread_join(master->master_thread, NULL);
-	i = 0;
-	while (i < vars->number_of_philosophers)
-	{
-		pthread_join(philos_array[i]->thread, NULL);
-		i++;
-	}
-}
+	printf("data of the philos:\n\n");
+	printf("num of philos: %d\n", prog_data()->num_philos);
+	printf("time to die: %d\n", prog_data()->time_to_die);
+	printf("time to eat: %d\n", prog_data()->time_to_eat);
+	printf("time to sleep: %d\n", prog_data()->time_to_sleep);
+	printf("number of meals: %d\n", prog_data()->meals);
+	printf("Time since the program was started: %ld\n",
+		get_current_time_in_ms() - prog_data()->start_time);
+	return ;
+} */

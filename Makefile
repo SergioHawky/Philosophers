@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -Werror -I include
 SRC = src/main.c \
 		src/init.c \
 		src/routine.c \
-		src/monitor.c \
+		src/check.c \
 		src/utils.c 
 
 OBJS = $(SRC:.c=.o)

@@ -10,89 +10,115 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philo.h"
 
-size_t	get_time(void)
-{
-	struct timeval	current_time;
-
-	gettimeofday(&current_time, NULL);
-	return ((current_time.tv_sec * 1000) + (current_time.tv_usec / 1000));
-}
-
-void	print(t_philos *thread, char *msg)
-{
-	size_t	time;
-
-	pthread_mutex_lock(&thread->vars->print_mutex);
-	time = get_time() - thread->vars->start_time;
-	if (check_for_death(thread) != 1)
-		printf("%zu %i %s\n", time, thread->id, msg);
-	pthread_mutex_unlock(&thread->vars->print_mutex);
-}
-
-void	free_philosophers(t_vars *vars, t_philos **philos_array)
-{
-	int	i;
-
-	if (philos_array == NULL)
-		return ;
-	i = 0;
-	while (i < vars->number_of_philosophers)
-	{
-		free(philos_array[i]);
-		i++;
-	}
-	free(philos_array);
-}
-
-void	destroy_mutexes(t_vars *vars, t_philos **philos)
+bool	ft_isnbr(char *nbr)
 {
 	int	i;
 
 	i = 0;
-	while (i < vars->number_of_philosophers)
+	if (nbr[i] == '+' || nbr[i] == '-')
+		i++;
+	if (!nbr[i])
+		return (false);
+	while (nbr[i])
 	{
-		pthread_mutex_destroy(&vars->mutexes[i]);
+		if (nbr[i] < '0' || nbr[i] > '9')
+			return (false);
 		i++;
 	}
-	free(vars->mutexes);
-	pthread_mutex_destroy(&vars->print_mutex);
-	pthread_mutex_destroy(&vars->shutdown_mutex);
-	if (philos)
+	return (true);
+}
+
+/// @brief check if its a number or not
+/// @param argc 
+/// @param argv
+
+bool	ft_valid(int argc, char **argv)
+{
+	int		i;
+	int		j;
+
+	i = 0;
+	while (i < argc - 1)
 	{
-		i = 0;
-		while (i < vars->number_of_philosophers)
+		j = 0;
+		while (argv[j])
 		{
-			pthread_mutex_destroy(&philos[i]->time_last_eaten_mutex);
-			pthread_mutex_destroy(&philos[i]->times_eaten_mutex);
-			i++;
+			if (!ft_isnbr(argv[j]))
+				return (false);
+			j++;
 		}
+		i++;
 	}
+	return (true);
 }
 
-int	ft_atoi(const char *str)
+/// @brief 
+/// @param nptr string thats gonna be converted to an int
+/// @return only positive numbers
+
+long	ft_atol(const char *nptr)
+{
+	int		count;
+	int		i;
+	long	num;
+
+	num = 0;
+	i = 0;
+	count = 1;
+	while ((nptr[i] >= '\t' && nptr[i] <= '\r') || nptr[i] == ' ')
+		i++;
+	if (nptr[i] == '+' || nptr[i] == '-')
+		return (-1);
+	while (nptr[i] >= '0' && nptr[i] <= '9')
+	{
+		num = num * 10 + (nptr[i] - 48);
+		i++;
+		if (num > INT_MAX || num < INT_MIN)
+			return ((long)INT_MAX + 1);
+	}
+	return (num * count);
+}
+
+/// @brief function to check if all the arguments are valid
+/// @param argv 
+/// @param argc 
+
+bool	validate_args(char **argv, int argc)
 {
 	int	i;
-	int	sign;
-	int	num;
 
 	i = 0;
-	sign = 1;
-	num = 0;
-	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\v'
-		|| str[i] == '\f' || str[i] == '\r')
-		i++;
-	if (str[i] == '+' || str[i] == '-')
+	if (!ft_valid(argc, &argv[1]))
+		return (false);
+	while (i < argc)
 	{
-		if (str[i] == '-')
-			sign *= -1;
+		if ((ft_atol(argv[1]) < 0 || ft_atol(argv[1]) > 200))
+			return (false);
+		if ((ft_atol(argv[2]) < 0 || ft_atol(argv[2]) > 1000))
+			return (false);
+		if ((ft_atol(argv[3]) < 0 || ft_atol(argv[3]) > 1000))
+			return (false);
+		if ((ft_atol(argv[4]) < 0 || ft_atol(argv[4]) > 1000))
+			return (false);
+		if (argc == 6)
+			if ((ft_atol(argv[5]) < 0 || ft_atol(argv[5]) > 1000))
+				return (false);
 		i++;
 	}
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		num = num * 10 + (str[i] - '0');
-		i++;
-	}
-	return (sign * num);
+	return (true);
+}
+
+/// @brief print the message of what the philosopher is doing
+/// @param philo_id 
+/// @param time 
+/// @param str 
+
+void	ft_printmessage(int philo_id, long time, char *str)
+{
+	pthread_mutex_lock(&prog_data()->write_lock);
+	if (!prog_data()->simulation_stop)
+		printf("%ld %d %s\n", time, philo_id, str);
+	pthread_mutex_unlock(&prog_data()->write_lock);
 }

@@ -10,95 +10,110 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "philo.h"
 
-int	check_for_death(t_philos *thread)
+int	start_simulation(t_philo *philos)
 {
-	pthread_mutex_lock(&thread->vars->shutdown_mutex);
-	thread->death_flag = thread->vars->shutdown_flag;
-	pthread_mutex_unlock(&thread->vars->shutdown_mutex);
-	if (thread->death_flag == 1)
-		return (1);
+	int	i;
+
+	i = -1;
+	while (++i < prog_data()->num_philos)
+	{
+		if (pthread_create(&philos[i].thread, NULL, philo_routine,
+				&philos[i]) != 0)
+			return (write(2, "Error creating a thread\n", 25), 1);
+	}
+	i = -1;
+	while (++i < prog_data()->num_philos)
+		pthread_join(philos[i].thread, NULL);
 	return (0);
 }
 
-void	go_to_sleep(t_philos *thread)
+static int	philo_sleep_think(t_philo *philos)
 {
-	size_t	end_time;
-
-	end_time = get_time() + thread->vars->time_to_sleep;
-	print(thread, "is sleeping");
-	while (get_time() < end_time && check_for_death(thread) == 0)
-	{
-		usleep(500);
-	}
+	ft_printmessage(philos->id,
+		get_current_time_in_ms() - prog_data()->start_time, SLEEPING);
+	death_checker(philos, prog_data()->time_to_sleep);
+	ft_printmessage(philos->id,
+		get_current_time_in_ms() - prog_data()->start_time, THINKING);
+	if (prog_data()->num_philos % 2 != 0)
+		death_checker(philos, prog_data()->time_to_sleep);
+	return (0);
 }
 
-void	take_forks(t_philos *thread)
+void	*philo_routine(void *args)
 {
-	int	first;
-	int	second;
+	t_philo	*philos;
+	int		i;
 
-	if (thread->id % 2 == 0)
+	i = 0;
+	philos = (t_philo *)args;
+	philos->last_meal_time = get_current_time_in_ms();
+	while (1)
 	{
-		first = thread->left_fork;
-		second = thread->right_fork;
+		if (!i++ && philos->id % 2 != 0)
+			usleep(prog_data()->time_to_eat);
+		if (i && philos->id % 2 != 0)
+			usleep(500);
+		philo_eating(philos);
+		if (prog_data()->meals > 0 && prog_data()->meals == philos->eaten)
+			break ;
+		philo_sleep_think(philos);
+		pthread_mutex_lock(&prog_data()->write_lock);
+		if (prog_data()->simulation_stop == 1)
+		{
+			pthread_mutex_unlock(&prog_data()->write_lock);
+			break ;
+		}
+		pthread_mutex_unlock(&prog_data()->write_lock);
+	}
+	return (NULL);
+}
+
+void	take_forks(t_philo *philos)
+{
+	int	right_fork;
+	int	left_fork;
+
+	left_fork = philos->id - 1;
+	right_fork = philos->id % prog_data()->num_philos;
+	if (philos->id % 2 == 0)
+	{
+		pthread_mutex_lock(&prog_data()->forks[left_fork]);
+		ft_printmessage(philos->id, get_current_time_in_ms()
+			- prog_data()->start_time, "has taken a fork");
+		pthread_mutex_lock(&prog_data()->forks[right_fork]);
+		ft_printmessage(philos->id, get_current_time_in_ms()
+			- prog_data()->start_time, "has taken a fork");
 	}
 	else
 	{
-		first = thread->right_fork;
-		second = thread->left_fork;
-		usleep(500);
+		pthread_mutex_lock(&prog_data()->forks[right_fork]);
+		ft_printmessage(philos->id,
+			get_current_time_in_ms() - prog_data()->start_time,
+			"has taken a fork");
+		pthread_mutex_lock(&prog_data()->forks[left_fork]);
+		ft_printmessage(philos->id,
+			get_current_time_in_ms() - prog_data()->start_time,
+			"has taken a fork");
 	}
-	pthread_mutex_lock(&thread->vars->mutexes[first]);
-	print(thread, "has taken a fork");
-	pthread_mutex_lock(&thread->vars->mutexes[second]);
-	print(thread, "has taken a fork");
 }
 
-void	eat(t_philos *thread)
+void	put_the_forks_down(t_philo	*philos)
 {
-	size_t	end_time;
+	int	right_fork;
+	int	left_fork;
 
-	pthread_mutex_lock(&thread->time_last_eaten_mutex);
-	thread->time_last_eaten = get_time();
-	end_time = thread->time_last_eaten + thread->vars->time_to_eat;
-	pthread_mutex_unlock(&thread->time_last_eaten_mutex);
-	print(thread, "is eating");
-	while (get_time() < end_time && check_for_death(thread) == 0)
+	left_fork = philos->id - 1;
+	right_fork = philos->id % prog_data()->num_philos;
+	if (philos->id % 2 == 0)
 	{
-		usleep(500);
+		pthread_mutex_unlock(&prog_data()->forks[right_fork]);
+		pthread_mutex_unlock(&prog_data()->forks[left_fork]);
 	}
-	pthread_mutex_unlock(&thread->vars->mutexes[thread->left_fork]);
-	pthread_mutex_unlock(&thread->vars->mutexes[thread->right_fork]);
-	pthread_mutex_lock(&thread->times_eaten_mutex);
-	thread->times_eaten++;
-	pthread_mutex_unlock(&thread->times_eaten_mutex);
-}
-
-void	*routine(void *arg)
-{
-	t_philos	*thread;
-	size_t		start;
-
-	thread = (t_philos *)arg;
-	if (thread->vars->number_of_philosophers == 1)
-		return (NULL);
-	start = thread->vars->start_time;
-	pthread_mutex_lock(&thread->time_last_eaten_mutex);
-	thread->time_last_eaten = start;
-	pthread_mutex_unlock(&thread->time_last_eaten_mutex);
-	while (start > get_time())
-		usleep(500);
-	if (thread->vars->number_of_philosophers % 2 == 1 && thread->id == 1)
-		usleep(500);
-	while (thread->death_flag == 0)
+	else
 	{
-		take_forks(thread);
-		eat(thread);
-		go_to_sleep(thread);
-		print(thread, "is thinking");
-		usleep(50);
+		pthread_mutex_unlock(&prog_data()->forks[left_fork]);
+		pthread_mutex_unlock(&prog_data()->forks[right_fork]);
 	}
-	return (NULL);
 }
