@@ -15,12 +15,14 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	@echo "Compiled"
 
 clean:
 	rm -f src/*.o
 
 fclean: clean
 	rm -f $(NAME)
+	@echo "Full clean"
 
 re: fclean all
 

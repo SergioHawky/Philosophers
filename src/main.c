@@ -14,6 +14,12 @@
 
 static void	free_philo(t_philo *philos)
 {
+	int	i;
+
+	i = 0;
+	while (i < prog_data()->num_philos)
+		pthread_mutex_destroy(&prog_data()->forks[i++]);
+	pthread_mutex_destroy(&prog_data()->write_lock);
 	free(philos);
 	free(prog_data()->forks);
 }

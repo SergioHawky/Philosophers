@@ -30,10 +30,6 @@ bool	ft_isnbr(char *nbr)
 	return (true);
 }
 
-/// @brief check if its a number or not
-/// @param argc 
-/// @param argv
-
 bool	ft_valid(int argc, char **argv)
 {
 	int		i;
@@ -53,10 +49,6 @@ bool	ft_valid(int argc, char **argv)
 	}
 	return (true);
 }
-
-/// @brief 
-/// @param nptr string thats gonna be converted to an int
-/// @return only positive numbers
 
 long	ft_atol(const char *nptr)
 {
@@ -81,39 +73,23 @@ long	ft_atol(const char *nptr)
 	return (num * count);
 }
 
-/// @brief function to check if all the arguments are valid
-/// @param argv 
-/// @param argc 
-
 bool	validate_args(char **argv, int argc)
 {
-	int	i;
-
-	i = 0;
 	if (!ft_valid(argc, &argv[1]))
 		return (false);
-	while (i < argc)
-	{
-		if ((ft_atol(argv[1]) < 0 || ft_atol(argv[1]) > 200))
+	if ((ft_atol(argv[1]) < 0 || ft_atol(argv[1]) > 200))
+		return (false);
+	if ((ft_atol(argv[2]) < 0 || ft_atol(argv[2]) > 1000))
+		return (false);
+	if ((ft_atol(argv[3]) < 0 || ft_atol(argv[3]) > 1000))
+		return (false);
+	if ((ft_atol(argv[4]) < 0 || ft_atol(argv[4]) > 1000))
+		return (false);
+	if (argc == 6)
+		if ((ft_atol(argv[5]) < 0 || ft_atol(argv[5]) > 1000))
 			return (false);
-		if ((ft_atol(argv[2]) < 0 || ft_atol(argv[2]) > 1000))
-			return (false);
-		if ((ft_atol(argv[3]) < 0 || ft_atol(argv[3]) > 1000))
-			return (false);
-		if ((ft_atol(argv[4]) < 0 || ft_atol(argv[4]) > 1000))
-			return (false);
-		if (argc == 6)
-			if ((ft_atol(argv[5]) < 0 || ft_atol(argv[5]) > 1000))
-				return (false);
-		i++;
-	}
 	return (true);
 }
-
-/// @brief print the message of what the philosopher is doing
-/// @param philo_id 
-/// @param time 
-/// @param str 
 
 void	ft_printmessage(int philo_id, long time, char *str)
 {

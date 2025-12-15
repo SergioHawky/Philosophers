@@ -12,10 +12,6 @@
 
 #include "philo.h"
 
-/// @brief main function to data initialization
-/// @param argv 
-/// @param argc 
-/// @return array of philosophers
 t_philo	*init_data(char **argv, int argc)
 {
 	t_philo	*philos;
@@ -26,6 +22,7 @@ t_philo	*init_data(char **argv, int argc)
 	prog_data()->time_to_sleep = ft_atol(argv[4]);
 	prog_data()->start_time = get_current_time_in_ms();
 	prog_data()->simulation_stop = 0;
+	pthread_mutex_init(&prog_data()->write_lock, NULL);
 	if (argc == 6)
 		prog_data()->meals = ft_atol(argv[5]);
 	else
@@ -38,8 +35,6 @@ t_philo	*init_data(char **argv, int argc)
 	return (philos);
 }
 
-/// @brief function to get the time precisely 
-/// @return
 long	get_current_time_in_ms(void)
 {
 	struct timeval	tv;
@@ -48,7 +43,6 @@ long	get_current_time_in_ms(void)
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-/// @brief function to store all the data inside the philosophers
 t_philo	*philo_storage(void)
 {
 	t_philo	*philos;

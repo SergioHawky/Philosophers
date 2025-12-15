@@ -108,12 +108,12 @@ void	put_the_forks_down(t_philo	*philos)
 	right_fork = philos->id % prog_data()->num_philos;
 	if (philos->id % 2 == 0)
 	{
-		pthread_mutex_unlock(&prog_data()->forks[right_fork]);
 		pthread_mutex_unlock(&prog_data()->forks[left_fork]);
+		pthread_mutex_unlock(&prog_data()->forks[right_fork]);
 	}
 	else
 	{
-		pthread_mutex_unlock(&prog_data()->forks[left_fork]);
 		pthread_mutex_unlock(&prog_data()->forks[right_fork]);
+		pthread_mutex_unlock(&prog_data()->forks[left_fork]);
 	}
 }

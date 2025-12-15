@@ -17,13 +17,8 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <stdint.h>
 # include <limits.h>
-# include <stdarg.h>
-# include <fcntl.h>
 # include <stdbool.h>
-# include <aio.h>
-# include <stddef.h>	
 # include <sys/time.h>
 
 # define RIGHT_FORK    "has taken right fork"
@@ -57,18 +52,14 @@ typedef struct s_data
 }	t_data;
 
 //main
-
 t_data	*prog_data(void);
 
 //utils
-
 bool	validate_args(char **argv, int argc);
 long	ft_atol(const char *nptr);
 bool	ft_valid(int argc, char **argv);
 bool	ft_isnbr(char *nbr);
 void	ft_printmessage(int philo_id, long time, char *str);
-
-//data initialization
 
 //void	print_data(void);
 t_philo	*philo_storage(void);
@@ -76,7 +67,6 @@ t_philo	*init_data(char **argv, int argc);
 long	get_current_time_in_ms(void);
 
 //philo routine
-
 void	*philo_routine(void *args);
 int		start_simulation(t_philo *philos);
 void	philo_eating(t_philo *philos);
@@ -85,7 +75,6 @@ void	put_the_forks_down(t_philo	*philos);
 void	one_philo(t_philo *philos);
 
 //checking and cleaning
-
 bool	death_checker(t_philo *philos, long state);
 
 #endif
