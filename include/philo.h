@@ -51,20 +51,17 @@ typedef struct s_data
 	int				simulation_stop;
 }	t_data;
 
-//main
-t_data	*prog_data(void);
-
 //utils
 bool	validate_args(char **argv, int argc);
 long	ft_atol(const char *nptr);
 bool	ft_valid(int argc, char **argv);
 bool	ft_isnbr(char *nbr);
-void	ft_printmessage(int philo_id, long time, char *str);
-
-//void	print_data(void);
-t_philo	*philo_storage(void);
-t_philo	*init_data(char **argv, int argc);
+void	ft_printmessage(t_data *data, int philo_id, long time, char *str);
 long	get_current_time_in_ms(void);
+
+//init
+t_philo	*philo_storage(t_data *data);
+t_philo	*init_data(t_data *data, char **argv, int argc);
 
 //philo routine
 void	*philo_routine(void *args);

@@ -12,29 +12,6 @@
 
 #include "philo.h"
 
-t_philo	*init_data(char **argv, int argc)
-{
-	t_philo	*philos;
-
-	prog_data()->num_philos = ft_atol(argv[1]);
-	prog_data()->time_to_die = ft_atol(argv[2]);
-	prog_data()->time_to_eat = ft_atol(argv[3]);
-	prog_data()->time_to_sleep = ft_atol(argv[4]);
-	prog_data()->start_time = get_current_time_in_ms();
-	prog_data()->simulation_stop = 0;
-	pthread_mutex_init(&prog_data()->write_lock, NULL);
-	if (argc == 6)
-		prog_data()->meals = ft_atol(argv[5]);
-	else
-		prog_data()->meals = -1;
-	prog_data()->forks = malloc(sizeof(pthread_mutex_t)
-		* prog_data()->num_philos);
-	if (!prog_data()->forks)
-		return (NULL);
-	philos = philo_storage();
-	return (philos);
-}
-
 long	get_current_time_in_ms(void)
 {
 	struct timeval	tv;
@@ -43,24 +20,46 @@ long	get_current_time_in_ms(void)
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-t_philo	*philo_storage(void)
+t_philo	*init_data(t_data *data, char **argv, int argc)
+{
+	t_philo	*philos;
+
+	data->num_philos = ft_atol(argv[1]);
+	data->time_to_die = ft_atol(argv[2]);
+	data->time_to_eat = ft_atol(argv[3]);
+	data->time_to_sleep = ft_atol(argv[4]);
+	data->start_time = get_current_time_in_ms();
+	data->simulation_stop = 0;
+	pthread_mutex_init(&data->write_lock, NULL);
+	if (argc == 6)
+		data->meals = ft_atol(argv[5]);
+	else
+		data->meals = -1;
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->num_philos);
+	if (!data->forks)
+		return (NULL);
+	philos = philo_storage(data);
+	return (philos);
+}
+
+t_philo	*philo_storage(t_data *data)
 {
 	t_philo	*philos;
 	int		i;
 
 	i = 0;
-	philos = malloc(sizeof(t_philo) * prog_data()->num_philos);
+	philos = malloc(sizeof(t_philo) * data->num_philos);
 	if (!philos)
 	{
-		free(prog_data()->forks);
+		free(data->forks);
 		return (NULL);
 	}
-	while (i < prog_data()->num_philos)
+	while (i < data->num_philos)
 	{
-		pthread_mutex_init(&prog_data()->forks[i], NULL);
+		pthread_mutex_init(&data->forks[i], NULL);
 		philos[i].id = i + 1;
-		philos[i].data = prog_data();
-		philos[i].last_meal_time = prog_data()->start_time;
+		philos[i].data = data;
+		philos[i].last_meal_time = data->start_time;
 		philos[i].eaten = 0;
 		philos[i].thread = 0;
 		i++;

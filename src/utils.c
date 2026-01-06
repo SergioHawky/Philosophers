@@ -91,10 +91,10 @@ bool	validate_args(char **argv, int argc)
 	return (true);
 }
 
-void	ft_printmessage(int philo_id, long time, char *str)
+void	ft_printmessage(t_data *data, int philo_id, long time, char *str)
 {
-	pthread_mutex_lock(&prog_data()->write_lock);
-	if (!prog_data()->simulation_stop)
+	pthread_mutex_lock(&data->write_lock);
+	if (!data->simulation_stop)
 		printf("%ld %d %s\n", time, philo_id, str);
-	pthread_mutex_unlock(&prog_data()->write_lock);
+	pthread_mutex_unlock(&data->write_lock);
 }
