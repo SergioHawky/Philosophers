@@ -41,6 +41,8 @@ static int	philo_sleep_think(t_philo *philos)
 	return (0);
 }
 
+//printf("philo %d eaten %d\n", philos->id, philos->eaten);
+
 void	*philo_routine(void *args)
 {
 	t_philo	*philos;
