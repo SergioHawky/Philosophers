@@ -15,18 +15,22 @@
 bool	death_checker(t_philo *philos, long state)
 {
 	long	time_mark;
+	long	wait_time;
 
 	pthread_mutex_lock(&philos->data->write_lock);
 	time_mark = get_current_time_in_ms() - philos->last_meal_time;
 	if (time_mark + state > philos->data->time_to_die
 		&& philos->data->simulation_stop == 0)
 	{
-		if (philos->data->time_to_die - time_mark > 0)
-			usleep((philos->data->time_to_die - time_mark) * 1000);
+		wait_time = philos->data->time_to_die - time_mark;
+		philos->data->simulation_stop = 1;
+		pthread_mutex_unlock(&philos->data->write_lock);
+		if (wait_time > 0)
+			usleep(wait_time * 1000);
+		pthread_mutex_lock(&philos->data->write_lock);
 		printf("%ld %d %s\n",
 			get_current_time_in_ms() - philos->data->start_time,
 			philos->id, DIED);
-		philos->data->simulation_stop = 1;
 		pthread_mutex_unlock(&philos->data->write_lock);
 		return (true);
 	}
@@ -38,10 +42,12 @@ bool	death_checker(t_philo *philos, long state)
 void	philo_eating(t_philo *philos)
 {
 	take_forks(philos);
+	pthread_mutex_lock(&philos->data->write_lock);
+	philos->last_meal_time = get_current_time_in_ms();
+	pthread_mutex_unlock(&philos->data->write_lock);
 	ft_printmessage(philos->data, philos->id,
 		get_current_time_in_ms() - philos->data->start_time, EATING);
 	death_checker(philos, philos->data->time_to_eat);
-	philos->last_meal_time = get_current_time_in_ms();
 	philos->eaten++;
 	put_the_forks_down(philos);
 }
