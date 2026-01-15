@@ -41,8 +41,6 @@ int	check_philo_death(t_philo *philo)
 	return (1);
 }
 
-// printf("[DEBUG] philo %d ate %d meals\n", philo->id, philo->eaten);
-
 void	philo_eating(t_philo *philo)
 {
 	long	now;

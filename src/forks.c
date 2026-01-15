@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   forks.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: seilkiv <seilkiv@student.42lisboa.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/15 18:31:03 by seilkiv           #+#    #+#             */
+/*   Updated: 2026/01/15 18:31:03 by seilkiv          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
-static void lock_forks_in_order(t_philo *philo, int first, int second)
+static void	lock_forks_in_order(t_philo *philo, int first, int second)
 {
 	pthread_mutex_lock(&philo->data->forks[first]);
 	pthread_mutex_lock(&philo->meal_lock);
