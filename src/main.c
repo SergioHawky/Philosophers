@@ -18,7 +18,11 @@ static void	free_philo(t_data *data, t_philo *philos)
 
 	i = 0;
 	while (i < data->num_philos)
-		pthread_mutex_destroy(&data->forks[i++]);
+	{
+		pthread_mutex_destroy(&data->forks[i]);
+		pthread_mutex_destroy(&philos[i].meal_lock);
+		i ++;
+	}
 	pthread_mutex_destroy(&data->write_lock);
 	free(philos);
 	free(data->forks);

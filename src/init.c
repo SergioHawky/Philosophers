@@ -30,7 +30,9 @@ t_philo	*init_data(t_data *data, char **argv, int argc)
 	data->time_to_sleep = ft_atol(argv[4]);
 	data->start_time = get_current_time_in_ms();
 	data->simulation_stop = 0;
+	data->finished_philos = 0;
 	pthread_mutex_init(&data->write_lock, NULL);
+	pthread_mutex_init(&data->stop_lock, NULL);
 	if (argc == 6)
 		data->meals = ft_atol(argv[5]);
 	else
@@ -59,6 +61,8 @@ t_philo	*philo_storage(t_data *data)
 		pthread_mutex_init(&data->forks[i], NULL);
 		philos[i].id = i + 1;
 		philos[i].data = data;
+		philos[i].finished = 0;
+		pthread_mutex_init(&philos[i].meal_lock, NULL);
 		philos[i].last_meal_time = data->start_time;
 		philos[i].eaten = 0;
 		philos[i].thread = 0;

@@ -30,21 +30,15 @@ bool	ft_isnbr(char *nbr)
 	return (true);
 }
 
-bool	ft_valid(int argc, char **argv)
+bool	ft_valid(char **argv)
 {
-	int		i;
-	int		j;
+	int	i;
 
 	i = 0;
-	while (i < argc - 1)
+	while (argv[i])
 	{
-		j = 0;
-		while (argv[j])
-		{
-			if (!ft_isnbr(argv[j]))
-				return (false);
-			j++;
-		}
+		if (!ft_isnbr(argv[i]))
+			return (false);
 		i++;
 	}
 	return (true);
@@ -75,7 +69,7 @@ long	ft_atol(const char *nptr)
 
 bool	validate_args(char **argv, int argc)
 {
-	if (!ft_valid(argc, &argv[1]))
+	if (!ft_valid(&argv[1]))
 		return (false);
 	if ((ft_atol(argv[1]) < 0 || ft_atol(argv[1]) > 200))
 		return (false);

@@ -34,7 +34,9 @@ typedef struct s_philo
 	int				id;
 	long			last_meal_time;
 	int				eaten;
+	int				finished;
 	pthread_t		thread;
+	pthread_mutex_t	meal_lock;
 	struct s_data	*data;
 }	t_philo;
 
@@ -47,6 +49,8 @@ typedef struct s_data
 	int				meals;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	write_lock;
+	pthread_mutex_t stop_lock;
+	int				finished_philos;
 	long			start_time;
 	int				simulation_stop;
 }	t_data;
@@ -54,7 +58,7 @@ typedef struct s_data
 //utils
 bool	validate_args(char **argv, int argc);
 long	ft_atol(const char *nptr);
-bool	ft_valid(int argc, char **argv);
+bool	ft_valid(char **argv);
 bool	ft_isnbr(char *nbr);
 void	ft_printmessage(t_data *data, int philo_id, long time, char *str);
 long	get_current_time_in_ms(void);
@@ -71,7 +75,8 @@ void	take_forks(t_philo *philos);
 void	put_the_forks_down(t_philo	*philos);
 void	one_philo(t_philo *philos);
 
-//checking and cleaning
-bool	death_checker(t_philo *philos, long state);
+//monitor
+void	*monitor_routine(void *arg);
+int		check_philo_death(t_philo *philo);
 
 #endif
