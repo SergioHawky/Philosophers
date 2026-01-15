@@ -40,124 +40,20 @@ void	*philo_routine(void *args)
 	philo = (t_philo *)args;
 	if (philo->id % 2)
 		usleep(philo->data->time_to_eat * 1000 / 2);
-
 	while (1)
 	{
-		pthread_mutex_lock(&philo->data->stop_lock);
-		if (philo->data->simulation_stop)
-		{
-			pthread_mutex_unlock(&philo->data->stop_lock);
-			break;
-		}
-		pthread_mutex_unlock(&philo->data->stop_lock);
-
+		if (simulation_should_stop(philo))
+			break ;
 		if (philo->id % 2 == 0)
-			usleep(500); // 🔴 QUEBRA PADRÃO FIXO
-
+			usleep(500);
 		philo_eating(philo);
-
-		if (philo->data->meals > 0 && philo->eaten >= philo->data->meals)
-		{
-			pthread_mutex_lock(&philo->meal_lock);
-			philo->finished = 1;
-			pthread_mutex_unlock(&philo->meal_lock);
-			
-			pthread_mutex_lock(&philo->data->write_lock);
-			printf("[DEBUG] philo %d FINISHED meals (%d)\n",
-				philo->id, philo->eaten);
-			pthread_mutex_unlock(&philo->data->write_lock);
-
-			pthread_mutex_lock(&philo->data->stop_lock);
-			philo->data->finished_philos++;
-			if (philo->data->finished_philos == philo->data->num_philos)
-				philo->data->simulation_stop = 1;
-			pthread_mutex_unlock(&philo->data->stop_lock);
-			break;
-		}
+		if (check_and_finish_meals(philo))
+			break ;
 		ft_printmessage(philo->data, philo->id,
 			get_current_time_in_ms() - philo->data->start_time, SLEEPING);
 		usleep(philo->data->time_to_sleep * 1000);
-
 		ft_printmessage(philo->data, philo->id,
 			get_current_time_in_ms() - philo->data->start_time, THINKING);
-	}
-	return (NULL);
-}
-
-void	take_forks(t_philo *philo)
-{
-	int	left;
-	int	right;
-
-	left = philo->id - 1;
-	right = philo->id % philo->data->num_philos;
-
-	if (philo->id % 2 == 0)
-	{
-		pthread_mutex_lock(&philo->data->forks[left]);
-
-		pthread_mutex_lock(&philo->meal_lock);
-		philo->last_meal_time = get_current_time_in_ms();
-		pthread_mutex_unlock(&philo->meal_lock);
-
-		ft_printmessage(philo->data, philo->id,
-			get_current_time_in_ms() - philo->data->start_time, FORK);
-
-		pthread_mutex_lock(&philo->data->forks[right]);
-		ft_printmessage(philo->data, philo->id,
-			get_current_time_in_ms() - philo->data->start_time, FORK);
-	}
-	else
-	{
-		pthread_mutex_lock(&philo->data->forks[right]);
-
-		pthread_mutex_lock(&philo->meal_lock);
-		philo->last_meal_time = get_current_time_in_ms();
-		pthread_mutex_unlock(&philo->meal_lock);
-
-		ft_printmessage(philo->data, philo->id,
-			get_current_time_in_ms() - philo->data->start_time, FORK);
-
-		pthread_mutex_lock(&philo->data->forks[left]);
-		ft_printmessage(philo->data, philo->id,
-			get_current_time_in_ms() - philo->data->start_time, FORK);
-	}
-}
-
-void	put_the_forks_down(t_philo *philos)
-{
-	int	right_fork;
-	int	left_fork;
-
-	left_fork = philos->id - 1;
-	right_fork = philos->id % philos->data->num_philos;
-	pthread_mutex_unlock(&philos->data->forks[left_fork]);
-	pthread_mutex_unlock(&philos->data->forks[right_fork]);
-}
-
-void	*monitor_routine(void *arg)
-{
-	t_philo	*philos;
-	int		i;
-
-	philos = (t_philo *)arg;
-	while (1)
-	{
-		pthread_mutex_lock(&philos[0].data->stop_lock);
-		if (philos[0].data->simulation_stop)
-		{
-			pthread_mutex_unlock(&philos[0].data->stop_lock);
-			return (NULL);
-		}
-		pthread_mutex_unlock(&philos[0].data->stop_lock);
-		i = 0;
-		while (i < philos[0].data->num_philos)
-		{
-			if (check_philo_death(&philos[i]))
-				return (NULL);
-			i++;
-		}
-		usleep(500);
 	}
 	return (NULL);
 }

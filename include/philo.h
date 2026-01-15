@@ -49,7 +49,7 @@ typedef struct s_data
 	int				meals;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	write_lock;
-	pthread_mutex_t stop_lock;
+	pthread_mutex_t	stop_lock;
 	int				finished_philos;
 	long			start_time;
 	int				simulation_stop;
@@ -79,4 +79,6 @@ void	one_philo(t_philo *philos);
 void	*monitor_routine(void *arg);
 int		check_philo_death(t_philo *philo);
 
+int		simulation_should_stop(t_philo *philo);
+int		check_and_finish_meals(t_philo *philo);
 #endif

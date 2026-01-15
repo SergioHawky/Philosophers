@@ -7,7 +7,9 @@ SRC = src/main.c \
 		src/init.c \
 		src/routine.c \
 		src/check.c \
-		src/utils.c
+		src/utils.c \
+		src/monitor.c \
+		src/forks.c
 
 OBJS = $(SRC:.c=.o)
 

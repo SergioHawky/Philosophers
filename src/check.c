@@ -34,47 +34,37 @@ int	check_philo_death(t_philo *philo)
 	{
 		philo->data->simulation_stop = 1;
 		pthread_mutex_lock(&philo->data->write_lock);
-		printf("%ld %d %s\n",
-			now - philo->data->start_time,
-			philo->id, DIED);
+		printf("%ld %d %s\n", now - philo->data->start_time, philo->id, DIED);
 		pthread_mutex_unlock(&philo->data->write_lock);
 	}
 	pthread_mutex_unlock(&philo->data->stop_lock);
 	return (1);
 }
 
+// printf("[DEBUG] philo %d ate %d meals\n", philo->id, philo->eaten);
+
 void	philo_eating(t_philo *philo)
 {
 	long	now;
 
-	// 1️⃣ se já passou do tempo, não tenta comer
 	pthread_mutex_lock(&philo->meal_lock);
 	now = get_current_time_in_ms();
 	if (now - philo->last_meal_time >= philo->data->time_to_die)
 	{
 		pthread_mutex_unlock(&philo->meal_lock);
-		return;
+		return ;
 	}
 	pthread_mutex_unlock(&philo->meal_lock);
-
-	// 2️⃣ pega nos forks (aqui já atualizas no 1º fork)
 	take_forks(philo);
-
-	// 🔴 3️⃣ AGORA sim: começou a comer de verdade
 	pthread_mutex_lock(&philo->meal_lock);
 	philo->last_meal_time = get_current_time_in_ms();
 	pthread_mutex_unlock(&philo->meal_lock);
-
 	ft_printmessage(philo->data, philo->id,
 		get_current_time_in_ms() - philo->data->start_time, EATING);
-
 	usleep(philo->data->time_to_eat * 1000);
-
 	pthread_mutex_lock(&philo->meal_lock);
 	philo->eaten++;
-	// printf("[DEBUG] philo %d ate %d meals\n", philo->id, philo->eaten);
 	pthread_mutex_unlock(&philo->meal_lock);
-
 	put_the_forks_down(philo);
 }
 
@@ -87,4 +77,37 @@ void	one_philo(t_philo *philos)
 	usleep(philos->data->time_to_die * 1000);
 	ft_printmessage(philos->data, philos->id,
 		get_current_time_in_ms() - philos->data->start_time, DIED);
+}
+
+int	simulation_should_stop(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->data->stop_lock);
+	if (philo->data->simulation_stop)
+	{
+		pthread_mutex_unlock(&philo->data->stop_lock);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->data->stop_lock);
+	return (0);
+}
+
+int	check_and_finish_meals(t_philo *philo)
+{
+	if (philo->data->meals > 0 && philo->eaten >= philo->data->meals)
+	{
+		pthread_mutex_lock(&philo->meal_lock);
+		philo->finished = 1;
+		pthread_mutex_unlock(&philo->meal_lock);
+		pthread_mutex_lock(&philo->data->write_lock);
+		printf("[DEBUG] philo %d FINISHED meals (%d)\n",
+			philo->id, philo->eaten);
+		pthread_mutex_unlock(&philo->data->write_lock);
+		pthread_mutex_lock(&philo->data->stop_lock);
+		philo->data->finished_philos++;
+		if (philo->data->finished_philos == philo->data->num_philos)
+			philo->data->simulation_stop = 1;
+		pthread_mutex_unlock(&philo->data->stop_lock);
+		return (1);
+	}
+	return (0);
 }
