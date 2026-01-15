@@ -96,10 +96,6 @@ int	check_and_finish_meals(t_philo *philo)
 		pthread_mutex_lock(&philo->meal_lock);
 		philo->finished = 1;
 		pthread_mutex_unlock(&philo->meal_lock);
-		pthread_mutex_lock(&philo->data->write_lock);
-		printf("[DEBUG] philo %d FINISHED meals (%d)\n",
-			philo->id, philo->eaten);
-		pthread_mutex_unlock(&philo->data->write_lock);
 		pthread_mutex_lock(&philo->data->stop_lock);
 		philo->data->finished_philos++;
 		if (philo->data->finished_philos == philo->data->num_philos)
@@ -109,3 +105,8 @@ int	check_and_finish_meals(t_philo *philo)
 	}
 	return (0);
 }
+
+/*pthread_mutex_lock(&philo->data->write_lock);
+		printf("[DEBUG] philo %d FINISHED meals (%d)\n",
+			philo->id, philo->eaten);
+		pthread_mutex_unlock(&philo->data->write_lock);*/
