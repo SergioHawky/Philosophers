@@ -12,6 +12,8 @@
 
 #include "philo.h"
 
+// Checks if the given string represents a valid number (optional leading + or -)
+
 bool	ft_isnbr(char *nbr)
 {
 	int	i;
@@ -30,6 +32,8 @@ bool	ft_isnbr(char *nbr)
 	return (true);
 }
 
+// Validates that all provided arguments are numeric strings.
+
 bool	ft_valid(char **argv)
 {
 	int	i;
@@ -43,6 +47,12 @@ bool	ft_valid(char **argv)
 	}
 	return (true);
 }
+
+/*
+ * Converts a numeric string to a long.
+ * Returns -1 if sign is detected.
+ * Performs basic overflow protection.
+ */
 
 long	ft_atol(const char *nptr)
 {
@@ -67,6 +77,11 @@ long	ft_atol(const char *nptr)
 	return (num * count);
 }
 
+/*
+ * Validates argument count and ensures all values
+ * are within acceptable limits defined for the simulation.
+ */
+
 bool	validate_args(char **argv, int argc)
 {
 	if (!ft_valid(&argv[1]))
@@ -84,6 +99,11 @@ bool	validate_args(char **argv, int argc)
 			return (false);
 	return (true);
 }
+
+/*
+ * Prints philosopher state messages in a thread-safe way.
+ * Ensures no overlapping logs and stops printing after simulation ends.
+ */
 
 void	ft_printmessage(t_data *data, int philo_id, long time, char *str)
 {

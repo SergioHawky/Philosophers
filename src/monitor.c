@@ -12,6 +12,15 @@
 
 #include "philo.h"
 
+/*
+ * Dedicated monitoring thread.
+ * Continuously checks each philosopher to detect death.
+ * Stops simulation if a philosopher dies or if
+ * simulation_stop flag is set.
+ * Uses small sleep intervals to respect 10ms death rule
+ * while avoiding high CPU usage.
+ */
+
 void	*monitor_routine(void *arg)
 {
 	t_philo	*philos;

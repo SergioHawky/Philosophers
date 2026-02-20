@@ -12,6 +12,8 @@
 
 #include "philo.h"
 
+// Frees allocated resources for philosophers and mutexes
+
 static void	free_philo(t_data *data, t_philo *philos)
 {
 	int	i;
@@ -27,6 +29,13 @@ static void	free_philo(t_data *data, t_philo *philos)
 	free(philos);
 	free(data->forks);
 }
+
+/*
+ * Entry point of the program.
+ * Validates arguments, initializes simulation data,
+ * handles the single philosopher case,
+ * starts the simulation and performs cleanup.
+ */
 
 int	main(int argc, char **argv)
 {

@@ -12,6 +12,12 @@
 
 #include "philo.h"
 
+/*
+ * Locks two forks in a specific order.
+ * The locking order is determined externally to reduce deadlock risk.
+ * Blocks execution if a fork is already taken.
+ */
+
 static void	lock_forks_in_order(t_philo *philo, int first, int second)
 {
 	pthread_mutex_lock(&philo->data->forks[first]);
@@ -25,6 +31,8 @@ static void	lock_forks_in_order(t_philo *philo, int first, int second)
 		get_current_time_in_ms() - philo->data->start_time, FORK);
 }
 
+// Locks the two forks needed for eating, with an order based on philosopher ID to reduce deadlock risk.
+
 void	take_forks(t_philo *philo)
 {
 	int	left;
@@ -37,6 +45,8 @@ void	take_forks(t_philo *philo)
 	else
 		lock_forks_in_order(philo, right, left);
 }
+
+// Unlocks the two forks after eating, allowing other philosophers to use them.
 
 void	put_the_forks_down(t_philo *philos)
 {

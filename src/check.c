@@ -12,6 +12,12 @@
 
 #include "philo.h"
 
+/*
+ * Checks if a philosopher has exceeded time_to_die.
+ * If so, safely stops the simulation and prints death message.
+ * Protected with meal_lock and stop_lock to avoid race conditions.
+ */
+
 int	check_philo_death(t_philo *philo)
 {
 	long	now;
@@ -41,6 +47,13 @@ int	check_philo_death(t_philo *philo)
 	return (1);
 }
 
+/*
+ * Handles the eating phase:
+ * acquires forks, updates last_meal_time,
+ * prints eating state, waits time_to_eat,
+ * increments meal count and releases forks.
+ */
+
 void	philo_eating(t_philo *philo)
 {
 	long	now;
@@ -66,6 +79,8 @@ void	philo_eating(t_philo *philo)
 	put_the_forks_down(philo);
 }
 
+// Handles the case when there is only one philosopher in the simulation.
+
 void	one_philo(t_philo *philos)
 {
 	pthread_mutex_lock(&philos->data->forks[philos->id - 1]);
@@ -76,6 +91,11 @@ void	one_philo(t_philo *philos)
 	ft_printmessage(philos->data, philos->id,
 		get_current_time_in_ms() - philos->data->start_time, DIED);
 }
+
+/*
+ * Checks if the simulation has been marked to stop.
+ * Protected by stop_lock to ensure thread-safe access.
+ */
 
 int	simulation_should_stop(t_philo *philo)
 {
@@ -88,6 +108,12 @@ int	simulation_should_stop(t_philo *philo)
 	pthread_mutex_unlock(&philo->data->stop_lock);
 	return (0);
 }
+
+/*
+ * Checks if philosopher reached required meal count.
+ * Marks philosopher as finished and updates global counter.
+ * Stops simulation when all philosophers have finished.
+ */
 
 int	check_and_finish_meals(t_philo *philo)
 {

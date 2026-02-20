@@ -12,6 +12,12 @@
 
 #include "philo.h"
 
+/*
+ * Creates philosopher threads and a monitor thread.
+ * Waits for all philosopher threads to finish,
+ * then joins the monitor thread before exiting.
+ */
+
 int	start_simulation(t_philo *philos)
 {
 	int			i;
@@ -33,19 +39,24 @@ int	start_simulation(t_philo *philos)
 	return (0);
 }
 
+/*
+ * Main routine executed by each philosopher thread.
+ * Handles the philosopher life cycle:
+ * thinking, taking forks, eating, sleeping.
+ * Stops when simulation ends or required meals are reached.
+ */
+
 void	*philo_routine(void *args)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)args;
 	if (philo->id % 2)
-		usleep(philo->data->time_to_eat * 1000 / 2);
+		usleep(philo->data->time_to_eat * 1000 / 2);  // Stagger start times for odd philosophers to reduce contention
 	while (1)
 	{
 		if (simulation_should_stop(philo))
 			break ;
-		if (philo->id % 2 == 0)
-			usleep(500);
 		philo_eating(philo);
 		if (check_and_finish_meals(philo))
 			break ;

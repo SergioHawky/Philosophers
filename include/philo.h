@@ -31,28 +31,28 @@
 
 typedef struct s_philo
 {
-	int				id;
-	long			last_meal_time;
-	int				eaten;
-	int				finished;
-	pthread_t		thread;
-	pthread_mutex_t	meal_lock;
-	struct s_data	*data;
+	int				id;								// Philosopher ID (1 to num_philos)
+	long			last_meal_time;					// Timestamp of the last meal in milliseconds
+	int				eaten;							// Number of times the philosopher has eaten		
+	int				finished;						// Flag to indicate if the philosopher has finished eating required meals
+	pthread_t		thread;							// Thread for the philosopher's routine
+	pthread_mutex_t	meal_lock;						// Mutex to protect access to last_meal_time and eaten
+	struct s_data	*data;							// Pointer to shared data structure
 }	t_philo;
 
 typedef struct s_data
 {
-	int				num_philos;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				meals;
-	pthread_mutex_t	*forks;
-	pthread_mutex_t	write_lock;
-	pthread_mutex_t	stop_lock;
-	int				finished_philos;
-	long			start_time;
-	int				simulation_stop;
+	int				num_philos;						// Total number of philosophers
+	int				time_to_die;					// Time in milliseconds before a philosopher dies if they don't eat
+	int				time_to_eat;					// Time in milliseconds it takes for a philosopher to eat
+	int				time_to_sleep;					// Time in milliseconds a philosopher spends sleeping
+	int				meals;							// Number of times each philosopher must eat (optional, 0 if not specified)
+	pthread_mutex_t	*forks;							// Array of mutexes representing the forks (size num_philos)
+	pthread_mutex_t	write_lock;						// Mutex to protect writing to the console
+	pthread_mutex_t	stop_lock;						// Mutex to protect access to simulation_stop and finished_philos
+	int				finished_philos;				// Counter for philosophers who have finished eating required meals
+	long			start_time;						// Timestamp when the simulation started in milliseconds
+	int				simulation_stop;				// Flag to indicate if the simulation should stop (1 if a philosopher has died or all have finished eating)
 }	t_data;
 
 //utils

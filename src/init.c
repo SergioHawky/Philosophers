@@ -12,6 +12,12 @@
 
 #include "philo.h"
 
+/*
+ * Returns the current system time in milliseconds.
+ * Uses gettimeofday and converts seconds and microseconds
+ * into a single millisecond timestamp.
+ */
+
 long	get_current_time_in_ms(void)
 {
 	struct timeval	tv;
@@ -19,6 +25,8 @@ long	get_current_time_in_ms(void)
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
+
+// Initializes philosopher data and mutexes based on command-line arguments.
 
 t_philo	*init_data(t_data *data, char **argv, int argc)
 {
@@ -43,6 +51,8 @@ t_philo	*init_data(t_data *data, char **argv, int argc)
 	philos = philo_storage(data);
 	return (philos);
 }
+
+// Initializes philosopher structures and their associated mutexes.
 
 t_philo	*philo_storage(t_data *data)
 {
