@@ -21,8 +21,6 @@
 # include <stdbool.h>
 # include <sys/time.h>
 
-# define RIGHT_FORK    "has taken right fork"
-# define LEFT_FORK     "has taken left fork"
 # define FORK          "has taken a fork"
 # define EATING        "is eating"
 # define SLEEPING      "is sleeping"

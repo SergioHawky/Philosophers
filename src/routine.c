@@ -60,11 +60,9 @@ void	*philo_routine(void *args)
 		philo_eating(philo);
 		if (check_and_finish_meals(philo))
 			break ;
-		ft_printmessage(philo->data, philo->id,
-			get_current_time_in_ms() - philo->data->start_time, SLEEPING);
+		ft_printmessage(philo->data, philo->id, get_current_time_in_ms() - philo->data->start_time, SLEEPING);
 		usleep(philo->data->time_to_sleep * 1000);
-		ft_printmessage(philo->data, philo->id,
-			get_current_time_in_ms() - philo->data->start_time, THINKING);
+		ft_printmessage(philo->data, philo->id, get_current_time_in_ms() - philo->data->start_time, THINKING);
 	}
 	return (NULL);
 }

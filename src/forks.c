@@ -24,11 +24,9 @@ static void	lock_forks_in_order(t_philo *philo, int first, int second)
 	pthread_mutex_lock(&philo->meal_lock);
 	philo->last_meal_time = get_current_time_in_ms();
 	pthread_mutex_unlock(&philo->meal_lock);
-	ft_printmessage(philo->data, philo->id,
-		get_current_time_in_ms() - philo->data->start_time, FORK);
+	ft_printmessage(philo->data, philo->id, get_current_time_in_ms() - philo->data->start_time, FORK);
 	pthread_mutex_lock(&philo->data->forks[second]);
-	ft_printmessage(philo->data, philo->id,
-		get_current_time_in_ms() - philo->data->start_time, FORK);
+	ft_printmessage(philo->data, philo->id, get_current_time_in_ms() - philo->data->start_time, FORK);
 }
 
 // Locks the two forks needed for eating, with an order based on philosopher ID to reduce deadlock risk.

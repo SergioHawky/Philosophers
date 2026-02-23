@@ -56,11 +56,11 @@ int	check_philo_death(t_philo *philo)
 
 void	philo_eating(t_philo *philo)
 {
-	long	now;
+	long	now;  // Current timestamp
 
 	pthread_mutex_lock(&philo->meal_lock);
 	now = get_current_time_in_ms();
-	if (now - philo->last_meal_time >= philo->data->time_to_die)
+	if (now - philo->last_meal_time >= philo->data->time_to_die) // Check if philosopher has already died before eating
 	{
 		pthread_mutex_unlock(&philo->meal_lock);
 		return ;
@@ -70,8 +70,7 @@ void	philo_eating(t_philo *philo)
 	pthread_mutex_lock(&philo->meal_lock);
 	philo->last_meal_time = get_current_time_in_ms();
 	pthread_mutex_unlock(&philo->meal_lock);
-	ft_printmessage(philo->data, philo->id,
-		get_current_time_in_ms() - philo->data->start_time, EATING);
+	ft_printmessage(philo->data, philo->id, get_current_time_in_ms() - philo->data->start_time, EATING);
 	usleep(philo->data->time_to_eat * 1000);
 	pthread_mutex_lock(&philo->meal_lock);
 	philo->eaten++;
@@ -84,12 +83,10 @@ void	philo_eating(t_philo *philo)
 void	one_philo(t_philo *philos)
 {
 	pthread_mutex_lock(&philos->data->forks[philos->id - 1]);
-	ft_printmessage(philos->data, philos->id,
-		get_current_time_in_ms() - philos->data->start_time, LEFT_FORK);
+	ft_printmessage(philos->data, philos->id, get_current_time_in_ms() - philos->data->start_time, FORK);
 	pthread_mutex_unlock(&philos->data->forks[philos->id - 1]);
 	usleep(philos->data->time_to_die * 1000);
-	ft_printmessage(philos->data, philos->id,
-		get_current_time_in_ms() - philos->data->start_time, DIED);
+	ft_printmessage(philos->data, philos->id, get_current_time_in_ms() - philos->data->start_time, DIED);
 }
 
 /*
